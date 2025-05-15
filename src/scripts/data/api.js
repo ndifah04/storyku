@@ -35,7 +35,7 @@ const API = {
       }
     );
 
-    return await response.json();
+    return response;
   },
 
   async getStoryDetail({ token, id }) {
@@ -95,7 +95,7 @@ const API = {
       body: JSON.stringify({ endpoint }),
     });
 
-    return await response.json();
+    return response;
   },
 };
 

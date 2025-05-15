@@ -166,8 +166,18 @@ export default class DetailPage {
 
     L.control.layers(baseMaps).addTo(this.map);
 
+    const myIcon = L.icon({
+      iconUrl: "/images/marker-icon.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      shadowUrl: "/images/marker-shadow.png",
+      shadowSize: [41, 41],
+    });
+
     // Tambahkan penanda lokasi cerita
-    L.marker([this.story.lat, this.story.lon])
+    L.marker([this.story.lat, this.story.lon], {
+      icon : myIcon,
+    })
       .addTo(this.map)
       .bindPopup(
         `<b>${this.story.name}</b><br>${this.story.description.substring(

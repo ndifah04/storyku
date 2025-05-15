@@ -18,10 +18,13 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
-      registerType: "autoUpdate",
       strategies: "injectManifest",
       srcDir: "scripts/utils",
       filename: "sw.js",
+      devOptions : {
+        enabled: true,
+        type: "module",
+      },
       includeAssets: ["favicon.svg", "images/logo.png", "robots.txt"],
       manifest: {
         name: "Storyku",

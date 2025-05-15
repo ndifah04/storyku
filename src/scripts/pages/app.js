@@ -12,21 +12,22 @@ class App {
   #drawerButton;
   #navigationDrawer;
   #authNavItem;
+  #notifSubsItem;
   notificationPermission = false;
 
-  constructor({ navigationDrawer, drawerButton, content, authNavItem }) {
+  constructor({ navigationDrawer, drawerButton, content, authNavItem, notifSubsItem }) {
     this.#content = content;
     this.#drawerButton = drawerButton;
     this.#navigationDrawer = navigationDrawer;
     this.#authNavItem = authNavItem;
+    this.#notifSubsItem = notifSubsItem;
 
     this.#setupIndexedDB();
-    this.#setupServiceWorker();
     this.#setupDrawer();
     this.#updateAuthNavItem();
   }
 
-  #setupServiceWorker() {
+  async #setupServiceWorker() {
     if (!navigator.serviceWorker) {
       console.error("Service Worker tidak berfungsi");
       return;
@@ -42,13 +43,9 @@ class App {
           "Bisa Update Versi."
         );
       },
-      onRegistered(registration) {
+      onRegistered : (registration) => {
         console.log("Service Worker terdaftar:", registration);
-        if (registration.pushManager) {
-          console.log("Push Manager tersedia");
-        } else {
-          console.error("Push Manager tidak tersedia");
-        }
+        this.#setupNotification();
       },
       onRegisterError(error) {
         console.error("Service Worker gagal terdaftar:", error);
@@ -85,11 +82,69 @@ class App {
     console.log("Indexed DB Sudah Siap")
   }
 
+  // Mengatur item navigasi login/logout berdasarkan status autentikasi
+  #updateAuthNavItem() {
+    if (AuthService.isLoggedIn()) {
+      this.#setupServiceWorker();
+      this.#authNavItem.textContent = "Logout";
+      this.#authNavItem.href = "#/logout";
+      this.#authNavItem.addEventListener("click", (event) => {
+        event.preventDefault();
+        AuthService.destroyAuth();
+        window.location.hash = "#/login";
+        this.#updateAuthNavItem();
+      });
+
+    } else {
+      this.#authNavItem.textContent = "Login";
+      this.#authNavItem.href = "#/login";
+    }
+  }
+
   async #setupNotification() {
     if (!("Notification" in window)) {
       console.error("Browser tidak mendukung Notification API");
       return;
     }
+
+    this.registrationNotif = await navigator.serviceWorker.getRegistration();
+
+    console.log(this.registrationNotif)
+
+    if (!this.registrationNotif?.pushManager) return;
+
+    const existedSubscription =
+      await this.registrationNotif?.pushManager?.getSubscription();
+
+    if (existedSubscription) {
+      this.subscribe = true;
+    }
+
+    this.#notificationNavigator();
+
+    this.#notifSubsItem.addEventListener("click", async () => {
+      if (!this.subscribe) {
+        await this.#subscribeNotification();
+        this.subscribe = true;
+      } else {
+        await this.#unsubscribeNotification();
+        this.subscribe = false;
+      }
+
+      this.#notificationNavigator();
+    });
+  }
+
+  #notificationNavigator() {
+    console.log("Notification Navigator");
+    if (!this.subscribe) {
+      this.#notifSubsItem.textContent = "Berlangganan Notifikasi";
+    } else {
+      this.#notifSubsItem.textContent = "Batalkan Berlangganan Notifikasi";
+    }
+  }
+
+  async #subscribeNotification() {
 
     const result = await Notification.requestPermission();
 
@@ -107,34 +162,28 @@ class App {
     this.notificationPermission = true;
 
     const auth = AuthService.getAuth();
+
     if (!auth) return;
 
-    const registration = await navigator.serviceWorker.getRegistration();
+    if (!this.subscribe) return
 
-    if (!registration?.pushManager) return;
-
-    const existedSubscription =
-      await registration?.pushManager?.getSubscription();
-
-    if (existedSubscription) {
-      return;
-    }
-
-    const subscription = await registration.pushManager.subscribe({
+    const subscription = await this.registrationNotif.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(CONFIG.VAPID_PUBLIC_KEY),
     });
 
-    try {
-      const { endpoint, keys } = subscription.toJSON();
+    const { endpoint, keys } = subscription.toJSON();
 
-      const subscriptionParse = {
-        endpoint: endpoint,
-        keys: {
-          auth: keys.auth,
-          p256dh: keys.p256dh,
-        },
-      };
+    const subscriptionParse = {
+      endpoint: endpoint,
+      keys: {
+        auth: keys.auth,
+        p256dh: keys.p256dh,
+      },
+    };
+
+    try {
+
 
       const response = await API.subscribeNotification({
         token: auth.token,
@@ -144,30 +193,56 @@ class App {
       if (!response.ok) {
         throw new Error("Gagal berlangganan notifikasi");
       }
+
+      alert("Berhasil berlangganan notifikasi");
+
     } catch (err) {
-      console.error("Gagal berlangganan notifikasi:", err);
-      await subscription.unsubscribe();
-      return;
+
+      alert("Gagal subscribe notification");
+
+      await subscription.unsubscribe()
+
     }
   }
 
-  // Mengatur item navigasi login/logout berdasarkan status autentikasi
-  #updateAuthNavItem() {
-    if (AuthService.isLoggedIn()) {
-      this.#setupNotification();
-      this.#authNavItem.textContent = "Logout";
-      this.#authNavItem.href = "#/logout";
-      this.#authNavItem.addEventListener("click", (event) => {
-        event.preventDefault();
-        AuthService.destroyAuth();
-        window.location.hash = "#/login";
-        this.#updateAuthNavItem();
+  async #unsubscribeNotification() {
+
+
+    console.log("Unsubscribe Notification");
+    console.log(this.subscribe);
+    if (!this.subscribe) return;
+
+    const auth = AuthService.getAuth();
+
+    if (!auth) return;
+
+    const subscription = await this.registrationNotif.pushManager.getSubscription();
+    
+    if (!subscription) return;
+
+    const { endpoint } = subscription.toJSON();
+
+    try {
+      const response = await API.unsubscribeNotification({
+        token: auth.token,
+        endpoint: endpoint,
       });
-    } else {
-      this.#authNavItem.textContent = "Login";
-      this.#authNavItem.href = "#/login";
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        console.log(data)
+        throw new Error("Gagal membatalkan langganan notifikasi");
+      }
+
+      alert("Berhasil membatalkan langganan notifikasi");
+
+    } catch (err) {
+      console.log(err)
+      alert("Gagal unsubscribe notification");
     }
   }
+
 
   async renderPage() {
     const url = getActiveRoute();

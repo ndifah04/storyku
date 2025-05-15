@@ -8,6 +8,7 @@ export default class HomePresenter {
     this.stories = [];
     this.map = null;
     this.markers = [];
+    this.subscribe = false;
   }
 
   async render() {
@@ -49,11 +50,15 @@ export default class HomePresenter {
       location: 1,
     });
 
-    if (response.error) {
-      throw new Error(response.message);
+    const data = await response.json();
+
+    console.log(data)
+
+    if (!response.ok) {
+      throw new Error(data.message);
     }
 
-    this.stories = response.listStory;
+    this.stories = data.listStory;
   }
 
   initMap() {
@@ -108,10 +113,10 @@ export default class HomePresenter {
       shadowSize: [41, 41],
     });
 
-    this.stories.forEach((story) => {
+    this.stories?.forEach((story) => {
       if (story.lat && story.lon) {
         const marker = L.marker([story.lat, story.lon], {
-          icon : myIcon
+          icon: myIcon
         }).addTo(this.map);
 
         marker.bindPopup(`
@@ -149,12 +154,10 @@ export default class HomePresenter {
     container.innerHTML = this.stories
       .map(
         (story, index) => `
-      <article class="card story-card animate-in" style="animation-delay: ${
-        index * 100
-      }ms">
-        <img src="${story.photoUrl}" alt="Story image by ${
-          story.name
-        }" loading="lazy">
+      <article class="card story-card animate-in" style="animation-delay: ${index * 100
+          }ms">
+        <img src="${story.photoUrl}" alt="Story image by ${story.name
+          }" loading="lazy">
         <div class="story-info">
           <p class="story-author">${story.name}</p>
           <p class="story-date">${showFormattedDate(
