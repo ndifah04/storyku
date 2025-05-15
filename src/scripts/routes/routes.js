@@ -5,6 +5,7 @@ import LoginPage from "../pages/auth/login-page";
 import RegisterPage from "../pages/auth/register-page";
 import AboutPage from "../pages/about/about-page";
 import AuthService from "../data/auth-service";
+import FavoritesPage from "../pages/favorite/favorite-page";
 
 const routes = {
   "/": {
@@ -31,6 +32,10 @@ const routes = {
     page: AboutPage,
     needAuth: false,
   },
+  "/favorites" : {
+    page : FavoritesPage,
+    needAuth : true
+  }
 };
 
 export function checkRoute(route) {

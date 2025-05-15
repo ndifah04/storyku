@@ -13,15 +13,17 @@ class App {
   #navigationDrawer;
   #authNavItem;
   #notifSubsItem;
+  #favoritesItem;
   notificationPermission = false;
 
-  constructor({ navigationDrawer, drawerButton, content, authNavItem, notifSubsItem }) {
+  constructor({ navigationDrawer, drawerButton, content, authNavItem, notifSubsItem, favoritesItem }) {
     this.#content = content;
     this.#drawerButton = drawerButton;
     this.#navigationDrawer = navigationDrawer;
     this.#authNavItem = authNavItem;
     this.#notifSubsItem = notifSubsItem;
-
+    this.#favoritesItem = favoritesItem
+    
     this.#setupIndexedDB();
     this.#setupDrawer();
     this.#updateAuthNavItem();
@@ -43,7 +45,7 @@ class App {
           "Bisa Update Versi."
         );
       },
-      onRegistered : (registration) => {
+      onRegistered: (registration) => {
         console.log("Service Worker terdaftar:", registration);
         this.#setupNotification();
       },
@@ -86,6 +88,7 @@ class App {
   #updateAuthNavItem() {
     if (AuthService.isLoggedIn()) {
       this.#setupServiceWorker();
+      this.#showFavorites(true);
       this.#authNavItem.textContent = "Logout";
       this.#authNavItem.href = "#/logout";
       this.#authNavItem.addEventListener("click", (event) => {
@@ -98,20 +101,44 @@ class App {
     } else {
       this.#authNavItem.textContent = "Login";
       this.#authNavItem.href = "#/login";
+      this.#showNotification(false);
+      this.#showFavorites(false);
+
     }
+  }
+
+  #showFavorites(show) {
+    if(!show) {
+      this.#favoritesItem.parentElement.style.display = "none";
+      return;
+    }
+    this.#favoritesItem.parentElement.style.display = "block";
+  }
+
+  #showNotification(show) {
+    if (!show) {
+      console.log(this.#notifSubsItem.parentElement)
+      this.#notifSubsItem.parentElement.style.display = "none";
+      return;
+    }
+
+    this.#notifSubsItem.parentElement.style.display = "block";
+
   }
 
   async #setupNotification() {
     if (!("Notification" in window)) {
       console.error("Browser tidak mendukung Notification API");
+      this.#showNotification(false);
       return;
     }
 
     this.registrationNotif = await navigator.serviceWorker.getRegistration();
 
-    console.log(this.registrationNotif)
-
-    if (!this.registrationNotif?.pushManager) return;
+    if (!this.registrationNotif?.pushManager) {
+      this.#showNotification(false);
+      return
+    };
 
     const existedSubscription =
       await this.registrationNotif?.pushManager?.getSubscription();
@@ -137,6 +164,7 @@ class App {
 
   #notificationNavigator() {
     console.log("Notification Navigator");
+    this.#showNotification(true);
     if (!this.subscribe) {
       this.#notifSubsItem.textContent = "Berlangganan Notifikasi";
     } else {
@@ -217,7 +245,7 @@ class App {
     if (!auth) return;
 
     const subscription = await this.registrationNotif.pushManager.getSubscription();
-    
+
     if (!subscription) return;
 
     const { endpoint } = subscription.toJSON();

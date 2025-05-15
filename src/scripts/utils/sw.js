@@ -50,7 +50,6 @@ self.addEventListener('push', (event) => {
 
 
 
-// 🔥 Custom runtime handler that falls back on 500s
 const fallbackOn500 = (strategy) => async (context) => {
   try {
     const cache = await caches.open(strategy.cacheName);
@@ -58,21 +57,20 @@ const fallbackOn500 = (strategy) => async (context) => {
     const response = await fetch(context.request);
 
 
-    // If response is 200, return it
     if (response && (response.ok || response.type === 'opaque')) {
       cache.put(context.request, response.clone());
       return response
     };
 
 
-    // If response is 500 or error, try cache
     const cached = await cache.match(context.request);
     return cached || response;
   } catch (err) {
     console.log("Error : ", err)
-    // Network error: return cache or offline fallback
+
     const cache = await caches.open(strategy.cacheName);
     const cached = await cache.match(context.request);
+    
     return cached || new Response(JSON.stringify({
       status: "error",
       message: "Offline",
