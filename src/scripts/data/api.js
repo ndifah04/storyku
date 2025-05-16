@@ -71,8 +71,6 @@ const API = {
 
   async subscribeNotification({ token, subscription }) {
 
-    console.log(JSON.stringify(subscription))
-
     const response = await fetch(`${CONFIG.BASE_URL}/notifications/subscribe`, {
       method: "POST",
       headers: {

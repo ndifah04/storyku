@@ -6,6 +6,7 @@ import { urlBase64ToUint8Array } from "../utils";
 import API from "../data/api";
 import CONFIG from "../config";
 import IndexedDB from "../data/idb";
+import LoadingIndicator from "../utils/loading";
 
 class App {
   #content;
@@ -17,6 +18,9 @@ class App {
   notificationPermission = false;
 
   constructor({ navigationDrawer, drawerButton, content, authNavItem, notifSubsItem, favoritesItem }) {
+    
+    this._notificationHandler = this._notificationHandler.bind(this);
+    
     this.#content = content;
     this.#drawerButton = drawerButton;
     this.#navigationDrawer = navigationDrawer;
@@ -126,6 +130,21 @@ class App {
 
   }
 
+  async _notificationHandler() {
+     LoadingIndicator.show();
+      if (!this.subscribe) {
+        await this.#subscribeNotification();
+      } else {
+        await this.#unsubscribeNotification();
+        this.subscribe = false;
+      }
+
+      console.log("Halo")
+
+      LoadingIndicator.hide();
+      this.#notificationNavigator();
+  }
+
   async #setupNotification() {
     if (!("Notification" in window)) {
       console.error("Browser tidak mendukung Notification API");
@@ -149,17 +168,9 @@ class App {
 
     this.#notificationNavigator();
 
-    this.#notifSubsItem.addEventListener("click", async () => {
-      if (!this.subscribe) {
-        await this.#subscribeNotification();
-        this.subscribe = true;
-      } else {
-        await this.#unsubscribeNotification();
-        this.subscribe = false;
-      }
+    this.#notifSubsItem.removeEventListener("click", this._notificationHandler);
 
-      this.#notificationNavigator();
-    });
+    this.#notifSubsItem.addEventListener("click", this._notificationHandler);
   }
 
   #notificationNavigator() {
@@ -193,7 +204,7 @@ class App {
 
     if (!auth) return;
 
-    if (!this.subscribe) return
+    if (this.subscribe) return
 
     const subscription = await this.registrationNotif.pushManager.subscribe({
       userVisibleOnly: true,
@@ -212,7 +223,6 @@ class App {
 
     try {
 
-
       const response = await API.subscribeNotification({
         token: auth.token,
         subscription: subscriptionParse,
@@ -222,13 +232,18 @@ class App {
         throw new Error("Gagal berlangganan notifikasi");
       }
 
+      console.log("Akhir")
+
       alert("Berhasil berlangganan notifikasi");
 
-    } catch (err) {
+      this.subscribe = true
 
+    } catch (err) {
+      console.log(err)
       alert("Gagal subscribe notification");
 
       await subscription.unsubscribe()
+      this.subscribe = false
 
     }
   }

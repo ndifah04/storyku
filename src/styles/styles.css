@@ -15,7 +15,7 @@
 }
 
 body {
-  font-family: 'Comic Neue', 'Poppins', 'Arial', sans-serif;
+  font-family: "Comic Neue", "Poppins", "Arial", sans-serif;
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
@@ -118,8 +118,9 @@ header {
   gap: 16px;
 }
 
-.nav-list li a, .nav-list li button {
-  all : unset;
+.nav-list li a,
+.nav-list li button {
+  all: unset;
   padding: 8px 12px;
   display: block;
   color: var(--text-color);
@@ -130,11 +131,9 @@ header {
   cursor: pointer;
 }
 
-
 .nav-list li a:hover,
 .nav-list li a:focus,
-.nav-list li button:hover
-{
+.nav-list li button:hover {
   background-color: var(--secondary-color);
   color: white;
 }
@@ -284,9 +283,9 @@ header {
 }
 
 .btn-favorite {
-  background-color: #cccccc;;
+  background-color: #cccccc;
   color: #4a4a4a;
-  transition: background-color .3s, color .3s;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .btn-favorite.active {
@@ -523,15 +522,15 @@ footer {
     gap: 8px;
   }
 
-  .nav-list li a, .nav-list li button {
+  .nav-list li a,
+  .nav-list li button {
     color: white;
     padding: 8px 16px;
   }
 
   .nav-list li a:hover,
   .nav-list li a:focus,
-  .nav-list li button:hover
-  {
+  .nav-list li button:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
 
@@ -554,4 +553,17 @@ footer {
   .story-detail-info {
     width: 50%;
   }
+}
+
+#loading-overlay {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.7);
+  justify-content: center;
+  align-items: center;
 }
