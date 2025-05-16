@@ -3,20 +3,28 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Dicoding Story - Berbagi cerita seputar Dicoding" />
+    <meta
+      name="description"
+      content="Dicoding Story - Berbagi cerita seputar Dicoding"
+    />
     <link rel="shortcut icon" href="/storyku/favicon.png" />
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
     <title>Dicoding Story</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <script type="module" crossorigin src="/storyku/assets/index-CI_urX0d.js"></script>
-    <link rel="stylesheet" crossorigin href="/storyku/assets/index-BxX5OA8c.css">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script type="module" crossorigin src="/storyku/assets/index-DYOR6tu7.js"></script>
+    <link rel="stylesheet" crossorigin href="/storyku/assets/index-Bj-2qOgx.css">
   <link rel="manifest" href="/storyku/manifest.webmanifest"></head>
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
-    
+
     <header>
       <div class="main-header container">
         <a class="brand-name" href="#/">Dicoding Story</a>
@@ -24,25 +32,37 @@
         <nav id="navigation-drawer" class="navigation-drawer">
           <ul id="nav-list" class="nav-list">
             <li><a href="#/">Beranda</a></li>
-            <li style="display: none;" ><a href="#/favorites" id="fav-nav-item" >Favorit</a></li>
+            <li style="display: none">
+              <a href="#/favorites" id="fav-nav-item">Favorit</a>
+            </li>
             <li><a href="#/add">Tambah Story</a></li>
-            <li style="display: none;"><button id="notif-nav-item"></button></li>
+            <li style="display: none"><button id="notif-nav-item"></button></li>
             <li><a id="auth-nav-item"></a></li>
           </ul>
         </nav>
 
-        <button id="drawer-button" class="drawer-button" aria-label="Toggle navigation menu">☰</button>
+        <button
+          id="drawer-button"
+          class="drawer-button"
+          aria-label="Toggle navigation menu"
+        >
+          ☰
+        </button>
       </div>
     </header>
 
     <main id="main-content" class="main-content" tabindex="-1"></main>
-    
+
     <footer>
       <div class="container">
         <p>&copy; 2025 Dicoding Story</p>
       </div>
     </footer>
-    
+    <div
+      id="loading-overlay"
+    >
+      <div style="font-size: 2rem">Loading...</div>
+    </div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   </body>
 </html>
