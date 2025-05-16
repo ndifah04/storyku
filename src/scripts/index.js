@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     drawerButton: document.querySelector('#drawer-button'),
     navigationDrawer: document.querySelector('#navigation-drawer'),
     authNavItem: document.getElementById("auth-nav-item"),
+    notifSubsItem: document.getElementById("notif-nav-item"),
+    favoritesItem : document.getElementById("fav-nav-item"),
   });
   await app.renderPage();
 

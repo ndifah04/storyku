@@ -1,9 +1,8 @@
 // src/pages/home/home-presenter.js
-import API from "../../data/api";
-import AuthService from "../../data/auth-service";
+import IndexedDB from "../../data/idb";
 import { showFormattedDate } from "../../utils";
 
-export default class HomePresenter {
+export default class FavoritesPresenter {
   constructor() {
     this.stories = [];
     this.map = null;
@@ -15,7 +14,7 @@ export default class HomePresenter {
     return `
       <section class="container page-transition">
         <h1 class="animate-in">Dicoding Story</h1>
-        <p class="animate-in">Berbagi cerita seputar Dicoding</p>
+        <p class="animate-in">Cerita Favorit</p>
         
         <div id="map-container" class="map-container animate-in"></div>
         
@@ -29,6 +28,7 @@ export default class HomePresenter {
   async afterRender() {
     try {
       await this.loadStories();
+      
       this.initMap();
       this.renderStories();
     } catch (error) {
@@ -42,23 +42,11 @@ export default class HomePresenter {
   }
 
   async loadStories() {
-    const auth = AuthService.getAuth();
-    if (!auth) return;
 
-    const response = await API.getAllStories({
-      token: auth.token,
-      location: 1,
-    });
+    this.stories = await IndexedDB.getAllFavorites();
 
-    const data = await response.json();
-
-    console.log(data)
-
-    if (!response.ok) {
-      throw new Error(data.message);
-    }
-
-    this.stories = data.listStory;
+    console.log(this.stories)
+  
   }
 
   initMap() {
@@ -97,18 +85,19 @@ export default class HomePresenter {
     L.control.layers(baseMaps).addTo(this.map);
 
     L.Icon.Default.mergeOptions({
-      iconUrl: `${import.meta.env.BASE_URL}storyku/images/marker-icon.png`,
-      shadowUrl: `${import.meta.env.BASE_URL}storyku/images/marker-shadow.png`,
+      iconUrl: "/images/marker-icon.png",
+      shadowUrl: "/images/marker-shadow.png",
     });
+
     this.addStoryMarkers();
   }
 
   addStoryMarkers() {
     const myIcon = L.icon({
-      iconUrl: import.meta.env.BASE_URL + "images/marker-icon.png",
+      iconUrl: "/images/marker-icon.png",
       iconSize: [25, 41],
       iconAnchor: [12, 41],
-      shadowUrl: import.meta.env.BASE_URL + "images/marker-shadow.png",
+      shadowUrl: "/images/marker-shadow.png",
       shadowSize: [41, 41],
     });
 
@@ -143,8 +132,8 @@ export default class HomePresenter {
     if (this.stories.length === 0) {
       container.innerHTML = `
         <div class="empty-message">
-          <p>No stories found. Be the first to share!</p>
-          <a href="#/add" class="btn btn-primary">Add New Story</a>
+          <p>Tidak ada cerita favoritmu. Silahkan lihat cerita orang lain untuk dijadikan sebagai cerita favorit, ya</p>
+          <a href="#/home" class="btn btn-primary">Lihat Daftar Cerita</a>
         </div>
       `;
       return;

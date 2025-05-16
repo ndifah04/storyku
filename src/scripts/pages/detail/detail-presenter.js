@@ -32,7 +32,7 @@ class DetailPresenter {
   }
 
   async addFavorite() {
-    await IndexedDB.addFavorite(this.params.id);
+    await IndexedDB.addFavorite(this.story);
   }
 
   async removeFavorite() {
