@@ -92,26 +92,27 @@ export default class HomePresenter {
     L.control.layers(baseMaps).addTo(this.map);
 
     L.Icon.Default.mergeOptions({
-      iconUrl: "/images/marker-icon.png",
-      shadowUrl: "/images/marker-shadow.png",
+      iconUrl: `${import.meta.env.BASE_URL}storyku/images/marker-icon.png`,
+      shadowUrl: `${import.meta.env.BASE_URL}storyku/images/marker-shadow.png`,
     });
-
     this.addStoryMarkers();
   }
 
   addStoryMarkers() {
     const myIcon = L.icon({
-      iconUrl: "/images/marker-icon.png",
+      iconUrl: import.meta.env.BASE_URL + "images/marker-icon.png",
       iconSize: [25, 41],
       iconAnchor: [12, 41],
-      shadowUrl: "/images/marker-shadow.png",
+      shadowUrl: import.meta.env.BASE_URL + "images/marker-shadow.png",
       shadowSize: [41, 41],
     });
+
+    console.log(import.meta.env.BASE_URL + "images/marker-shadow.png")
 
     this.stories.forEach((story) => {
       if (story.lat && story.lon) {
         const marker = L.marker([story.lat, story.lon], {
-          icon : myIcon
+          icon: myIcon,
         }).addTo(this.map);
 
         marker.bindPopup(`
