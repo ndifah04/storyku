@@ -265,6 +265,8 @@ class App {
 
       alert("Berhasil membatalkan langganan notifikasi");
 
+      subscription.unsubscribe();
+
     } catch (err) {
       console.log(err)
       alert("Gagal unsubscribe notification");
